@@ -1,0 +1,3 @@
+export nnUNet_raw_data_base="/ssd_Samsung870_2T/nnUNet/nnunet/nnUNet_raw_data_base"
+export nnUNet_preprocessed="/ssd_Samsung870_2T/nnUNet/nnunet/preprocessing"
+export RESULTS_FOLDER="/ssd_Samsung870_2T/nnUNet/nnunet/nnunet_trained_models"
