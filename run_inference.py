@@ -12,12 +12,11 @@ from skimage.transform import resize
 import torchio as tio
 import pandas as pd 
 import sys
+import json
 import pathlib
 import SimpleITK as sitk
 from tqdm.notebook import tqdm
 
-#The following is cloned from the repository 
-from hecktor.src.data.utils import read_nifti, write_nifti, get_attributes, resample_sitk_image
 
 #input_dir = '/input/'
 #path_img = os.path.join(input_dir,'{}_hrT2.nii.gz')
@@ -31,25 +30,6 @@ os.environ['nnUNet_raw_data_base'] = os.path.join(main_dir,'nnUNet_raw_data_base
 os.environ['nnUNet_preprocessed'] = os.path.join(main_dir,'preprocessed')
 os.environ['RESULTS_FOLDER'] = os.path.join(main_dir,'nnUNet_trained_models')
 
-
-
-def resample_image(itk_image, out_spacing=(1.0, 1.0, 1.0), out_size = None, 
-                                interpolate = sitk.sitkNearestNeighbor):
-
-    # original_spacing = itk_image.GetSpacing()
-    # original_size = itk_image.GetSize()
-
-    resample = sitk.ResampleImageFilter()
-    resample.SetOutputSpacing(out_spacing)
-    resample.SetSize(out_size)
-    resample.SetOutputDirection(itk_image.GetDirection())
-    resample.SetOutputOrigin(itk_image.GetOrigin())
-    resample.SetTransform(sitk.Transform())
-    resample.SetDefaultPixelValue(itk_image.GetPixelIDValue())
-    resample.SetInterpolator(interpolate)
-
-    return resample.Execute(itk_image)
-
 INPUT_FOLDER='/ssd_Samsung870_2T/docker_submission/input/'
 OUTPUT_FOLDER='/ssd_Samsung870_2T/docker_submission/input_input/'
 
@@ -59,6 +39,7 @@ org_img_spacing_v = []
 resampling_size_v = [] 
 cropping_size_v = []
 
+#Pre-process
 for i in os.listdir(INPUT_FOLDER): 
     
     img_files_v.append(i)
@@ -81,8 +62,77 @@ for i in os.listdir(INPUT_FOLDER):
 
     image_cropped.save(OUTPUT_FOLDER+i[:-7]+'_0000'+'.nii.gz')
 
-validation_info = pd.DataFrame(list(zip(img_files_v, org_img_size_v, org_img_spacing_v, 
+test_df = pd.DataFrame(list(zip(img_files_v, org_img_size_v, org_img_spacing_v, 
                                          resampling_size_v, cropping_size_v)), 
                                          columns =['img_files','org_img_size','org_img_spacing',
                                          'resampling_size','cropping_size'])
-validation_info.to_csv("validation_info.csv", header=True, index=False)
+test_df.to_csv("test_info.csv", header=True, index=False)
+
+#Check the sizes for confirmation
+for i in os.listdir(OUTPUT_FOLDER):
+
+    image = tio.ScalarImage(os.path.join(OUTPUT_FOLDER, i))
+    label_size = list(image.shape[1:3])    
+
+    if label_size == [256, 256]: 
+        continue 
+    else: 
+        transform = tio.CropOrPad([256, 256])
+        label_transform = transform(image)
+        label_transform.save(os.path.join(OUTPUT_FOLDER,i))
+  
+'''Run model here'''
+
+    
+'''Post Processing'''
+
+INPUT_FOLDER = "path-to-prediction: output_output" #fix here
+ORI_PATH = "/ssd_Samsung870_2T/docker_submission/input_input/"
+OUTPUT_FOLDER = "path-to-output-submission:  output" #fix here
+os.makedirs(OUTPUT_FOLDER,exist_ok=True)
+
+test_df = pd.read_csv("path-to-test_info.csv") #fix here
+
+for i in os.listdir(INPUT_FOLDER): 
+
+    k = i[:-7] +"_hrT2.nii.gz" #how it was saved in the test csv 
+    
+    #In the csv file, the sizes are saved as a string of list, so we need to convert it to list
+    list_str = test_df.loc[test_df['img_files'] == k, 'resampling_size'].item() #pick the size for the img 
+    target_size = json.loads(list_str)
+
+    label = tio.LabelMap(os.path.join(INPUT_FOLDER,i))
+
+    transform_1 = tio.CropOrPad(target_size)
+    label_transform_1 = transform_1(label)
+
+    #In the csv file, the spacings are saved as a string of tuple, so we need to convert it to tuple
+    spacing_str = test_df.loc[test_df['img_files'] == k, 'org_img_spacing'].item() #pick the spacing for the img 
+    target_spacing = eval(spacing_str)
+
+    transform_2 = tio.Resample(target_spacing, image_interpolation='nearest', label_interpolation="nearest")
+    label_transform_2 = transform_2(label_transform_1)
+
+    s = i[:-7] + "_Label.nii.gz"
+    label_transform_2.save(os.path.join(OUTPUT_FOLDER,s))
+
+
+#Confirm label sizes match original test image sizes
+for i in os.listdir(OUTPUT_FOLDER):
+
+    label = tio.LabelMap(os.path.join(OUTPUT_FOLDER, i))
+    label_size = list(label.shape[1:4])
+
+    k = i[:21] +"_hrT2.nii.gz" #Remove "_Label.nii.gz" and add "_hrT2.nii.gz" for the testing images
+    
+    #In the csv file, the sizes are saved as a string of list, so we need to convert it to list
+    list_str = test_df.loc[test_df['img_files'] == k, 'org_img_size'].item() #pick the size for the img 
+    org_size = json.loads(list_str)
+
+    if label_size == org_size: 
+        continue 
+    else: 
+        transform = tio.CropOrPad(org_size)
+        label_transform = transform(label)
+        label_transform.save(os.path.join(OUTPUT_FOLDER,i))
+
