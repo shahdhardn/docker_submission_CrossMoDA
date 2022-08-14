@@ -96,7 +96,6 @@ test_df = pd.read_csv("/ssd_Samsung870_2T/docker_submission/test_info.csv") #fix
 for i in os.listdir(INPUT_FOLDER): 
 
     k = i[:-7] +"_hrT2.nii.gz" #how it was saved in the test csv 
-    
     #In the csv file, the sizes are saved as a string of list, so we need to convert it to list
     list_str = test_df.loc[test_df['img_files'] == k, 'resampling_size'].item() #pick the size for the img 
     target_size = json.loads(list_str)
