@@ -86,12 +86,12 @@ for i in os.listdir(OUTPUT_FOLDER):
     
 '''Post Processing'''
 
-INPUT_FOLDER = "path-to-prediction: output_output" #fix here
-ORI_PATH = "/ssd_Samsung870_2T/docker_submission/input_input/"
-OUTPUT_FOLDER = "path-to-output-submission:  output" #fix here
+INPUT_FOLDER = "/ssd_Samsung870_2T/docker_submission/output_output" #fix here
+ORI_PATH = "/ssd_Samsung870_2T/docker_submission/input"
+OUTPUT_FOLDER = "/ssd_Samsung870_2T/docker_submission/output" #fix here
 os.makedirs(OUTPUT_FOLDER,exist_ok=True)
 
-test_df = pd.read_csv("path-to-test_info.csv") #fix here
+test_df = pd.read_csv("/ssd_Samsung870_2T/docker_submission/test_info.csv") #fix here
 
 for i in os.listdir(INPUT_FOLDER): 
 

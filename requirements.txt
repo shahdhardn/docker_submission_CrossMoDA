@@ -105,4 +105,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 widgetsnbextension==3.6.1
 wrapt==1.14.1
-nnunet=1.7.0
+nnunet==1.7.0
