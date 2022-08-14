@@ -1,6 +1,6 @@
 ## Pull from existing image
 # FROM nvcr.io/nvidia/pytorch:21.05-py3
-FROM continuumio/miniconda
+FROM pytorch/pytorch
 
 WORKDIR /
 
