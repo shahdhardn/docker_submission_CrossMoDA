@@ -83,7 +83,18 @@ for i in os.listdir(OUTPUT_FOLDER):
   
 '''Run model here'''
 
-    
+main_dir = os.path.join("/ssd_Samsung870_2T",'nnUNet/nnunet')
+os.environ['nnUNet_raw_data_base'] = os.path.join(main_dir,'nnUNet_raw_data_base')
+os.environ['nnUNet_preprocessed'] = os.path.join(main_dir,'preprocessed')
+os.environ['RESULTS_FOLDER'] = os.path.join(main_dir,'nnUNet_trained_models')
+
+os.system('nnUNet_find_best_configuration -m 3d_fullres -tr nnUNetTrainerV2 nnUNetTrainerV2_insaneDA nnUNetTrainerV2_Loss_DiceCE_noSmooth -t 119')
+
+os.system('nnUNet_predict -i /ssd_Samsung870_2T/docker_submission/input/ -o /ssd_Samsung870_2T/docker_submission/output_output_hou/ -t 119 -tr nnUNetTrainerV2 -m 3d_fullres --save_npz')
+os.system('nnUNet_predict -i /ssd_Samsung870_2T/docker_submission/input/ -o /ssd_Samsung870_2T/docker_submission/output_output_shahad/ -t 119 -tr nnUNetTrainerV2_Loss_DiceCE_noSmooth -m 3d_fullres --save_npz')
+os.system('nnUNet_predict -i /ssd_Samsung870_2T/docker_submission/input/ -o /ssd_Samsung870_2T/docker_submission/output_output_hussain/ -t 119 -tr nnUNetTrainerV2_insaneDA -m 3d_fullres --save_npz')
+
+os.system('nnUNet_ensemble -f /ssd_Samsung870_2T/docker_submission/output_output_hou/ /ssd_Samsung870_2T/docker_submission/output_output_shahad/ /ssd_Samsung870_2T/docker_submission/output_output_hussain/ -o /ssd_Samsung870_2T/docker_submission/output_output/ -pp POSTPROCESSING_FILE(json) ')
 '''Post Processing'''
 
 INPUT_FOLDER = "/ssd_Samsung870_2T/docker_submission/output_output" #fix here
