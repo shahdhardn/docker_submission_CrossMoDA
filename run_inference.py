@@ -60,7 +60,7 @@ for i in os.listdir(INPUT_FOLDER):
 
     cropping_size_v.append(list(image_cropped.shape[1:]))
 
-    image_cropped.save(OUTPUT_FOLDER+i[:-7]+'_0000'+'.nii.gz')
+    image_cropped.save(OUTPUT_FOLDER+i[:-12]+'_0000'+'.nii.gz')
 
 test_df = pd.DataFrame(list(zip(img_files_v, org_img_size_v, org_img_spacing_v, 
                                          resampling_size_v, cropping_size_v)), 
@@ -86,12 +86,15 @@ for i in os.listdir(OUTPUT_FOLDER):
 
 #os.system('nnUNet_find_best_configuration -m 3d_fullres -tr nnUNetTrainerV2 -tr nnUNetTrainerV2_insaneDA -tr nnUNetTrainerV2_Loss_DiceCE_noSmooth -t 119')
 
-os.system('nnUNet_predict -i /input/ -o /output_output_hou/ -t 119 -tr nnUNetTrainerV2 -m 3d_fullres --save_npz')
-os.system('nnUNet_predict -i /input/ -o /output_output_shahad/ -t 119 -tr nnUNetTrainerV2_Loss_DiceCE_noSmooth -m 3d_fullres --save_npz')
-os.system('nnUNet_predict -i /input/ -o /output_output_hussain/ -t 119 -tr nnUNetTrainerV2_insaneDA -m 3d_fullres --save_npz')
+os.system('nnUNet_predict -i /input_input/ -o /output_output_hou/ -t 119 -tr nnUNetTrainerV2 -m 3d_fullres --save_npz')
+os.system('nnUNet_predict -i /input_input/ -o /output_output_shahad/ -t 119 -tr nnUNetTrainerV2_Loss_DiceCE_noSmooth -m 3d_fullres --save_npz')
+os.system('nnUNet_predict -i /input_input/ -o /output_output_hussain/ -t 119 -tr nnUNetTrainerV2_insaneDA -m 3d_fullres --save_npz')
 
 os.system('nnUNet_ensemble -f /output_output_hou/ /output_output_shahad/ /output_output_hussain/ -o /output_output/ -pp /nnUNet/nnunet/nnUNet_trained_models/nnUNet/postprocessing.json')
 '''Post Processing'''
+
+os.system('rm -rf /output_output/not_postprocessed')
+os.system('rm -rf /output_output/*.json')
 
 INPUT_FOLDER = "/output_output" #fix here
 ORI_PATH = "/input"

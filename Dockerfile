@@ -7,7 +7,7 @@ WORKDIR /
 COPY . /
 
 ## Install Python packages in Docker image
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 ## Execute the inference command 
 CMD ["python", "run_inference.py"]
