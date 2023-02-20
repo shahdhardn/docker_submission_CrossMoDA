@@ -1,0 +1,19 @@
+{
+    "dc_per_class_pp_all": {
+        "1": 0.8930768517115558,
+        "2": 0.015017895116527524
+    },
+    "dc_per_class_pp_per_class": {
+        "1": 0.8967919853573613,
+        "2": 0.5948164472487
+    },
+    "dc_per_class_raw": {
+        "1": 0.8978757275078859,
+        "2": 0.840390571617896
+    },
+    "for_which_classes": [],
+    "min_valid_object_sizes": "None",
+    "num_samples": 477,
+    "validation_final": "validation_raw_postprocessed",
+    "validation_raw": "validation_raw"
+}
